@@ -2,10 +2,9 @@ FROM golang:1.26-alpine AS builder
 
 WORKDIR /src
 
-COPY go.mod .
-COPY main.go .
+COPY . ./
 
-RUN go build -o /app/main ./...
+RUN go mod download && go build -o /app/main ./...
 
 FROM alpine:3.19
 

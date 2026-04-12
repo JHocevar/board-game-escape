@@ -5,14 +5,20 @@ help: ## Display this help screen
 
 
 clean: ## Clean artifacts
-	rm main
-	rm board-game-escape.tar
+	rm -f main
+	rm -f board-game-escape.tar
+
+tidy: ## go mod tidy
+	pushd server/src && go mod tidy
 
 build: clean ## Build main executable
-	go build -o main server/main.go
+	pushd server/src && go build -o main .
 
 run: ## go run main.go
-	go run server/main.go
+	pushd server/src && go run .
+
+run-docker: ## Run docker image
+	docker-compose up --build
 
 build-image: ## Builds docker image (local machine)
 	docker build -f server/Dockerfile -t board-game-escape:latest server

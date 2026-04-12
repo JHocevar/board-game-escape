@@ -1,0 +1,13 @@
+services:
+  app:
+    image: board-game-escape:latest
+    build:
+      context: server
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DYNAMODB_ENDPOINT: http://192.168.4.51:8000
+      AWS_ACCESS_KEY_ID: fakeMyKeyId
+      AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
+      AWS_REGION: fakeRegion
