@@ -24,6 +24,7 @@ func initDynamoDb(ctx context.Context, tableName string) (*dynamodb.Client, erro
 
 func startServer(client *dynamodb.Client) {
 	http.HandleFunc("GET /", rootHandler)
+	http.HandleFunc("GET /tag", getTagHandler(client))
 	http.HandleFunc("POST /reset", resetTableHandler(client))
 	http.HandleFunc("POST /tag", saveTagHandler(client))
 	http.HandleFunc("DELETE /tag", deleteTagHandler(client))

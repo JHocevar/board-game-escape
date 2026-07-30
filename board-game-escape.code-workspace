@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"name": "board-game-escape",
+			"path": "."
+		},
+		{
+			"name": "shared-libs",
+			"path": "platformIO/lib"
+		},
+		{
+			"name": "Playground",
+			"path": "platformIO/projects/Playground"
+		},
+		{
+			"name": "Wordle",
+			"path": "platformIO/projects/Wordle"
+		},
+		{
+			"name": "TagManagement",
+			"path": "platformIO/projects/TagManagement"
+		}
+	],
+	"settings": {}
+}

@@ -1,14 +1,20 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
+type jsonResponse struct {
+	Message string `json:"message"`
+}
+
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "hi gamers, how we doin?\n")
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(jsonResponse{Message: "hi gamers, how we doin?"})
 }
 
 func resetTableHandler(client *dynamodb.Client) http.HandlerFunc {
@@ -17,7 +23,9 @@ func resetTableHandler(client *dynamodb.Client) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		fmt.Fprint(w, "table reset complete\n")
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(jsonResponse{Message: "table reset complete"})
 	}
 }
 
@@ -39,7 +47,9 @@ func saveTagHandler(client *dynamodb.Client) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		fmt.Fprintf(w, "tag '%s' saved successfully\n", tag.Id)
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(jsonResponse{Message: fmt.Sprintf("tag '%s' saved successfully", tag.Id)})
 	}
 }
 
@@ -58,7 +68,9 @@ func deleteTagHandler(client *dynamodb.Client) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		fmt.Fprintf(w, "tag '%s' deleted successfully\n", tagId)
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(jsonResponse{Message: fmt.Sprintf("tag '%s' deleted successfully", tagId)})
 	}
 }
 
@@ -69,8 +81,30 @@ func listTagsHandler(client *dynamodb.Client) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		for _, tag := range tags {
-			fmt.Fprintf(w, "%s: %s\n", tag.Id, tag.Content)
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(tags); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
+
+func getTagHandler(client *dynamodb.Client) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.URL.Query().Get("id")
+		tag, err := getTag(r.Context(), client, id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if tag != nil {
+			if err := json.NewEncoder(w).Encode(tag); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+		} else {
+			http.NotFound(w, r)
 		}
 	}
 }

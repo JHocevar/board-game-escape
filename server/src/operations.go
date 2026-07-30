@@ -61,3 +61,25 @@ func listTags(ctx context.Context, client *dynamodb.Client) ([]Tag, error) {
 	}
 	return tags, nil
 }
+
+func getTag(ctx context.Context, client *dynamodb.Client, tagId string) (*Tag, error) {
+	out, err := client.GetItem(ctx, &dynamodb.GetItemInput{
+		TableName: aws.String(tableName),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: tagId},
+			"SK": &types.AttributeValueMemberS{Value: tagId},
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tag with id %q: %w", tagId, err)
+	}
+	if out.Item == nil {
+		return nil, nil // Tag not found
+	}
+
+	tag := &Tag{
+		Id:      out.Item["PK"].(*types.AttributeValueMemberS).Value,
+		Content: out.Item["Content"].(*types.AttributeValueMemberS).Value,
+	}
+	return tag, nil
+}
