@@ -19,3 +19,7 @@ vendor/
 *.tar
 
 backup/
+
+node_modules/
+.svelte-kit/
+build/

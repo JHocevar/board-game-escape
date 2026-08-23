@@ -1,4 +1,4 @@
-.PHONY: help build build-image build-image-linux run clean proxmox
+.PHONY: help build build-image build-image-linux run clean proxmox frontend-install frontend-build
 
 help: ## Display this help screen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -7,11 +7,18 @@ help: ## Display this help screen
 clean: ## Clean artifacts
 	rm -f main
 	rm -f board-game-escape.tar
+	rm -rf frontend/build frontend/.svelte-kit
 
 tidy: ## go mod tidy
 	pushd server/src && go mod tidy
 
-build: clean ## Build main executable
+frontend-install: ## Install frontend dependencies
+	cd frontend && npm install
+
+frontend-build: frontend-install ## Build the Svelte SPA
+	cd frontend && npm run build
+
+build: clean frontend-build ## Build the application and frontend assets
 	pushd server/src && go build -o main .
 
 run: ## go run main.go
